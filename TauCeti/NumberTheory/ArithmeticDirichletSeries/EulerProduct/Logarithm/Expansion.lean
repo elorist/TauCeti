@@ -139,13 +139,11 @@ theorem tsum_coeff_localLogSeries_eq_log_eulerFactor (D : EulerProductData K)
   · rw [D.localLogSeries_def, h.tsum_eq]
     simp only [D.coeff_localPowerSeries, D.localPowerSeries_eval_eq_eulerFactor]
 
-/-- **Each local prime-power logarithm is holomorphic.** If the local series at `P` converges
-absolutely at the real point `σ` and the local power series has no zero in the disk of radius
-`N(P) ^ (-σ)`, then the evaluated formal logarithm of the local factor is holomorphic in `s` on the
-half-plane `Re(s) > σ`. -/
+/-- **Each local prime-power logarithm is holomorphic.** If the local power series at `P` has no
+zero in the disk of radius `N(P) ^ (-σ)`, then the evaluated formal logarithm of the local factor
+is holomorphic in `s` on the half-plane `Re(s) > σ`. -/
 theorem differentiableOn_tsum_coeff_localLogSeries_of_zeroFree (D : EulerProductData K)
     (P : HeightOneSpectrum (𝓞 K)) {σ : ℝ}
-    (hσ : LSeriesSummable (D.localArithmeticFactor P) (σ : ℂ))
     (hne : ∀ z : ℂ,
       ‖z‖ < ‖(Ideal.absNorm P.asIdeal : ℂ) ^ (-(σ : ℂ))‖ →
         FormalMultilinearSeries.ofScalarsSum (E := ℂ)
@@ -154,7 +152,7 @@ theorem differentiableOn_tsum_coeff_localLogSeries_of_zeroFree (D : EulerProduct
       ((Ideal.absNorm P.asIdeal : ℂ) ^ (-s)) ^ e) {s : ℂ | σ < s.re} := by
   have hΛ := PowerSeries.differentiableOn_tsum_coeff_logOf_mul_pow_of_zeroFree
     (D.localPowerSeries P) (D.constantCoeff_localPowerSeries P)
-    (D.norm_absNorm_cpow_neg_le_radius_localPowerSeries P hσ) fun z hz ↦ by
+    (r := (‖(Ideal.absNorm P.asIdeal : ℂ) ^ (-(σ : ℂ))‖₊ : ENNReal)) fun z hz ↦ by
       apply hne z
       rw [enorm_eq_nnnorm, ENNReal.coe_lt_coe] at hz
       exact_mod_cast hz
@@ -294,8 +292,7 @@ theorem differentiableOn_tsum_tsum_coeff_localLogSeries_of_zeroFree (D : EulerPr
   have hE : E.Finite := D.eventually_tsum_norm_idealTerm_primeIdealPow_succ_lt hσ
   have hT : Summable T := D.summable_tsum_norm_idealTerm_primeIdealPow_succ hσ
   have hℓd (P : HeightOneSpectrum (𝓞 K)) : DifferentiableOn ℂ (ℓ P) {s : ℂ | σ < s.re} :=
-    D.differentiableOn_tsum_coeff_localLogSeries_of_zeroFree P
-      (D.LSeriesSummable_localArithmeticFactor hσ P) (hne P)
+    D.differentiableOn_tsum_coeff_localLogSeries_of_zeroFree P (hne P)
   -- Holomorphy is local, so it suffices to work on each smaller half-plane `Re(s) > σ'`.
   intro s₀ hs₀
   rw [Set.mem_ofPred_eq] at hs₀
