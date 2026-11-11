@@ -19,11 +19,12 @@ a class function, so it acts on a finite-dimensional irreducible representation 
 `TauCeti/RepresentationTheory/Compact/Integrated.lean`). Its Haar integral against another character
 `χ_ρ` is the `L²` inner product of the two characters, so the character orthogonality relations of
 `TauCeti/RepresentationTheory/Compact/Character/Basic.lean` evaluate that scalar. This file records
-the two resulting **character projections**, for `π` finite-dimensional irreducible and unitary:
+the two resulting **character projections**, for `π` finite-dimensional irreducible:
 
-* the kernel `dim V_π · conj χ_π` acts as the identity on `V_π` itself;
-* `conj χ_π` acts as zero on a finite-dimensional `ρ` admitting no nonzero continuous intertwiner
-  `ρ → π`.
+* the kernel `dim V_π · conj χ_π` acts as the identity on `V_π` itself, with no unitarity of `π`
+  needed;
+* for `π` unitary, `conj χ_π` acts as zero on a representation `ρ` admitting no nonzero
+  continuous intertwiner `ρ → π`, where `ρ` need not be finite-dimensional.
 
 These are the two blockwise identities from which the isotypic projectors are built. Their assembly
 on a reducible representation is carried out in

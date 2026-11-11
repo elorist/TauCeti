@@ -8,7 +8,7 @@ module
 public import TauCeti.RepresentationTheory.AsModule
 public import TauCeti.RepresentationTheory.Compact.Character.Projection
 public import Mathlib.RingTheory.SimpleModule.Isotypic
-import TauCeti.RepresentationTheory.Continuous.InvariantComplement
+import TauCeti.RepresentationTheory.Compact.Semisimple
 import TauCeti.RepresentationTheory.Compact.UnitaryModel
 import TauCeti.RepresentationTheory.Irreducible
 
@@ -23,8 +23,8 @@ class function
 acts by integration on every finite-dimensional continuous representation `rho`. When `sigma` is
 irreducible, the character-projection identities show that this action is the
 identity on every irreducible subrepresentation of `rho` isomorphic to `sigma` and zero on every
-other irreducible subrepresentation of `rho`. Complete reducibility, for unitary `rho`, then
-identifies its range with
+other irreducible subrepresentation of `rho`. Complete reducibility of `rho`
+(`Representation.isSemisimpleRepresentation_of_continuous`) then identifies its range with
 Mathlib's `isotypicComponent` of type `sigma`.
 
 ## Main definitions
@@ -57,9 +57,10 @@ the only datum visible in the answer: the range is Mathlib's sum of the simple `
 The carrier of `sigma` is only asked to be a finite-dimensional normed space; no inner product on
 it is required, since everything visible in the statements reads `sigma` through its dimension, its
 character and its isomorphism type. The results that see the whole of `rho` — the identity on a
-matching block and on the whole isotypic component — need no more than that, and neither does the
-vanishing on a non-matching block; only the range identification, the fixed-point characterization
-and idempotence ask in addition that `rho` be unitary, for complete reducibility.
+matching block and on the whole isotypic component, the range identification, the fixed-point
+characterization and idempotence — need no more than that, and neither does the vanishing on a
+non-matching block. Complete reducibility of `rho`, which the range identification uses, comes from
+continuity alone, not from a unitary structure.
 
 ## References
 
@@ -420,7 +421,7 @@ private lemma equivLinearMapAsModule_isotypicProjector_mem_isotypicComponent
 /-- **The character projector cuts out the isotypic component.** Its range is exactly Mathlib's
 sum of the simple `k[G]`-submodules isomorphic to the selected irreducible. -/
 @[simp]
-theorem range_isotypicProjector (hunitary : IsUnitary rho)
+theorem range_isotypicProjector
     (sigma : ContRepresentation k G W) (hsigma : Continuous sigma)
     (hirr : Representation.IsIrreducible sigma.toRepresentation) :
     (isotypicProjector rho hrho sigma hsigma).toIntertwiningMap.range.asSubmodule =
@@ -433,7 +434,9 @@ theorem range_isotypicProjector (hunitary : IsUnitary rho)
   let _ : IsSimpleModule k[G] sigma.toRepresentation.asModule :=
     (Representation.irreducible_iff_isSimpleModule_asModule _).mp hirr
   have hsemisimple : IsSemisimpleModule k[G] rho.toRepresentation.asModule :=
-    hunitary.isSemisimpleModule_asModule
+    (Representation.isSemisimpleRepresentation_iff_isSemisimpleModule_asModule _).mp
+      (Representation.isSemisimpleRepresentation_of_continuous _ fun f v ↦
+        (LinearMap.continuous_of_finiteDimensional f).comp (continuous_clm_apply.mp hrho v))
   let _ := hsemisimple
   have hmaps : ∀ m : Submodule k[G] rho.toRepresentation.asModule,
       IsSimpleModule k[G] m → m ≤ C.comap p := fun m hm x hx ↦
@@ -459,7 +462,7 @@ theorem range_isotypicProjector (hunitary : IsUnitary rho)
 /-- A vector belongs to the selected isotypic component exactly when the character projector fixes
 it. -/
 @[simp]
-theorem mem_isotypicComponent_iff_isotypicProjector_apply (hunitary : IsUnitary rho)
+theorem mem_isotypicComponent_iff_isotypicProjector_apply
     (sigma : ContRepresentation k G W) (hsigma : Continuous sigma)
     (hirr : Representation.IsIrreducible sigma.toRepresentation) (v : V) :
     v ∈ isotypicComponent k[G] rho.toRepresentation.asModule sigma.toRepresentation.asModule ↔
@@ -473,11 +476,11 @@ theorem mem_isotypicComponent_iff_isotypicProjector_apply (hunitary : IsUnitary 
         (isotypicProjector rho hrho sigma hsigma).toIntertwiningMap.range.asSubmodule :=
       (Subrepresentation.mem_asSubmodule_iff
         (σ := (isotypicProjector rho hrho sigma hsigma).toIntertwiningMap.range)).mpr hmem
-    rwa [range_isotypicProjector rho hrho hunitary sigma hsigma hirr] at hrange
+    rwa [range_isotypicProjector rho hrho sigma hsigma hirr] at hrange
 
 /-- The character isotypic projector is idempotent. -/
 @[simp]
-theorem isotypicProjector_idempotent (hunitary : IsUnitary rho)
+theorem isotypicProjector_idempotent
     (sigma : ContRepresentation k G W) (hsigma : Continuous sigma)
     (hirr : Representation.IsIrreducible sigma.toRepresentation) :
     (isotypicProjector rho hrho sigma hsigma).comp (isotypicProjector rho hrho sigma hsigma) =
@@ -494,7 +497,7 @@ theorem isotypicProjector_idempotent (hunitary : IsUnitary rho)
       (isotypicProjector rho hrho sigma hsigma).toIntertwiningMap.range.asSubmodule :=
     (Subrepresentation.mem_asSubmodule_iff
       (σ := (isotypicProjector rho hrho sigma hsigma).toIntertwiningMap.range)).mpr hmem
-  rwa [range_isotypicProjector rho hrho hunitary sigma hsigma hirr] at hrange
+  rwa [range_isotypicProjector rho hrho sigma hsigma hirr] at hrange
 
 end NormedSelected
 
