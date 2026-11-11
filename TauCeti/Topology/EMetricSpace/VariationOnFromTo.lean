@@ -188,9 +188,34 @@ variable {α X : Type*} [LinearOrder α] [DenselyOrdered α] [MetricSpace X]
 /-- Injectivity on the interior of an interval makes cumulative variation strictly increasing
 on the closed interval. Thus equal endpoint values do not obstruct the arclength coordinate. -/
 theorem strictMonoOn_variationOnFromTo_of_injOn_Ioo
-    (hf : LocallyBoundedVariationOn f (Icc a b)) (hc : c ∈ Icc a b)
-    (hinj : InjOn f (Ioo a b)) :
+    (hf : LocallyBoundedVariationOn f (Icc a b)) (hinj : InjOn f (Ioo a b)) :
     StrictMonoOn (variationOnFromTo f (Icc a b) c) (Icc a b) := by
+  rcases (Icc a b).eq_empty_or_nonempty with h0 | ⟨z, hz⟩
+  · intro x hx
+    rw [h0] at hx
+    exact hx.elim
+  have hab : a ≤ b := hz.1.trans hz.2
+  -- A base point outside `Icc a b` gives the same values as the nearest endpoint.
+  obtain ⟨c, hc, hcc⟩ : ∃ c' ∈ Icc a b,
+      EqOn (variationOnFromTo f (Icc a b) c) (variationOnFromTo f (Icc a b) c') (Icc a b) := by
+    rcases lt_or_ge c a with h | h
+    · refine ⟨a, left_mem_Icc.2 hab, fun x hx ↦ ?_⟩
+      rw [variationOnFromTo.eq_of_le _ _ (h.le.trans hx.1), variationOnFromTo.eq_of_le _ _ hx.1]
+      have hs : Icc a b ∩ Icc c x = Icc a b ∩ Icc a x := by
+        ext y
+        simp only [mem_inter_iff, mem_Icc]
+        constructor <;> rintro ⟨⟨h1, h2⟩, h3, h4⟩ <;> refine ⟨⟨h1, h2⟩, ?_, h4⟩ <;> order
+      rw [hs]
+    · rcases le_or_gt c b with h' | h'
+      · exact ⟨c, ⟨h, h'⟩, fun _ _ ↦ rfl⟩
+      · refine ⟨b, right_mem_Icc.2 hab, fun x hx ↦ ?_⟩
+        rw [variationOnFromTo.eq_of_ge _ _ (hx.2.trans h'.le), variationOnFromTo.eq_of_ge _ _ hx.2]
+        have hs : Icc a b ∩ Icc x c = Icc a b ∩ Icc x b := by
+          ext y
+          simp only [mem_inter_iff, mem_Icc]
+          constructor <;> rintro ⟨⟨h1, h2⟩, h3, h4⟩ <;> refine ⟨⟨h1, h2⟩, h3, ?_⟩ <;> order
+        rw [hs]
+  refine StrictMonoOn.congr ?_ hcc.symm
   have hm := variationOnFromTo.monotoneOn hf hc
   intro x hx y hy hxy
   refine lt_of_le_of_ne (hm hx hy hxy.le) ?_
