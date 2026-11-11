@@ -84,10 +84,12 @@ theorem left_apply_mem_orbit_iff (x y : 𝟙_ (Over (Spec (.of k))) ⟶ X)
   have : LocallyOfFiniteType ((orbitMap G x).left ≫ X.hom) := by
     rw [hw]
     infer_instance
+  have : LocallyOfFiniteType (orbitMap G x).left :=
+    locallyOfFiniteType_of_comp (orbitMap G x).left X.hom
   obtain rfl : a = IsLocalRing.closedPoint k := Subsingleton.elim (α := Spec (.of k)) _ _
   rw [mem_orbit]
   refine Iff.trans
-    ((orbitMap G x).left.exists_comp_eq_iff_mem_range X.hom y.left (Over.w y)).symm ?_
+    ((orbitMap G x).left.exists_comp_eq_iff_mem_range y.left).symm ?_
   symm
   constructor
   · rintro ⟨g, rfl⟩
