@@ -50,12 +50,15 @@ character itself, and the conjugation appears only here, where the acting functi
 to `conj χ_π` and `ContRepresentation.integral_star_character_mul_character` identifies the
 integral with Mathlib's sesquilinear `L²` inner product of the two characters.
 
-The character orthogonality relations, and the passage from intertwiners to integrals of matrix
-coefficients, need a unitary representation on an inner product space. They are brought to bear on
-a general `π` by replacing it with a unitary conjugate on the standard model
-`EuclideanSpace 𝕜 (Fin (dim V))` (`ContRepresentation.exists_isUnitary_congr`), which has the same
-character and, up to that conjugation, the same intertwiners from `ρ`. The vanishing on `ρ` is
-detected by continuous linear functionals on its carrier, which need not be an inner product space.
+The self-action identity reads the scalar off the first character orthogonality relation, which
+holds for any finite-dimensional irreducible `π`. The vanishing identity passes from intertwiners
+to integrals of matrix coefficients, which needs a unitary representation on an inner product
+space; it is brought to bear on a general `π` by replacing it with a unitary conjugate on the
+standard model `EuclideanSpace 𝕜 (Fin (dim V))`
+(`ContRepresentation.exists_isUnitary_congr_euclideanSpace`), which has the same character
+(`ContinuousLinearEquiv.character_congr`) and, up to that conjugation, the same intertwiners from
+`ρ`. The vanishing on `ρ` is detected by continuous linear functionals on its carrier, which need
+not be an inner product space.
 
 ## References
 
@@ -104,35 +107,6 @@ private theorem star_character_conj (g h : G) :
     (star (character π hπ)) (h * g * h⁻¹) = (star (character π hπ)) g := by
   rw [ContinuousMap.star_apply, ContinuousMap.star_apply, character_conj π hπ g h]
 
-omit [IsAlgClosed 𝕜] [IsTopologicalGroup G] [CompactSpace G] [MeasurableSpace G] [BorelSpace G]
-  [NormedSpace ℝ V] [SMulCommClass ℝ 𝕜 V] in
-/-- Transport along a continuous linear equivalence does not change the character: the action
-operators are conjugated, and the trace is invariant under conjugation. -/
-private theorem character_congr {V' : Type*} [NormedAddCommGroup V'] [NormedSpace 𝕜 V']
-    [FiniteDimensional 𝕜 V'] (f : V ≃L[𝕜] V') :
-    character (ContinuousLinearEquiv.congr f π) (ContinuousLinearEquiv.continuous_congr f hπ) =
-      character π hπ := by
-  ext g
-  have hconj : ((ContinuousLinearEquiv.congr f π g : V' →L[𝕜] V') : V' →ₗ[𝕜] V') =
-      f.toLinearEquiv.conj (π g : V →ₗ[𝕜] V) :=
-    LinearMap.ext fun x ↦ ContinuousLinearEquiv.congr_apply f π g x
-  rw [character_apply, character_apply, hconj]
-  exact LinearMap.trace_conj' (π g : V →ₗ[𝕜] V) f.toLinearEquiv
-
-omit [IsAlgClosed 𝕜] [MeasurableSpace G] [BorelSpace G] [NormedSpace ℝ V]
-  [SMulCommClass ℝ 𝕜 V] in
-/-- A finite-dimensional continuous representation of a compact group is conjugate to a unitary
-representation on the standard model `EuclideanSpace 𝕜 (Fin (dim V))`: transport it there along a
-continuous linear equivalence, then unitarize (`ContRepresentation.exists_isUnitary_congr`). -/
-private theorem exists_isUnitary_congr_euclideanSpace :
-    ∃ f : V ≃L[𝕜] EuclideanSpace 𝕜 (Fin (Module.finrank 𝕜 V)),
-      IsUnitary (ContinuousLinearEquiv.congr f π) := by
-  obtain ⟨estd⟩ := FiniteDimensional.nonempty_continuousLinearEquiv_of_finrank_eq
-    (𝕜 := 𝕜) (E := V) (F := EuclideanSpace 𝕜 (Fin (Module.finrank 𝕜 V)))
-    finrank_euclideanSpace_fin.symm
-  obtain ⟨e, he⟩ := exists_isUnitary_congr _ (ContinuousLinearEquiv.continuous_congr estd hπ)
-  exact ⟨estd.trans e, by rwa [ContinuousLinearEquiv.congr_congr] at he⟩
-
 include hρ in
 omit [IsAlgClosed 𝕜] [NormedSpace ℝ V] [SMulCommClass ℝ 𝕜 V] [NormedSpace ℝ W]
   [SMulCommClass ℝ 𝕜 W] in
@@ -168,9 +142,9 @@ theorem integratedOperator_star_character_eq_zero
   -- (`ContRepresentation.star_character`) pair with `g ↦ ℓ (ρ g v)` to matrix entries of the
   -- averages of the rank-one operators `w ↦ ℓ w • bᵢ`, which are intertwiners `ρ → π'`.
   obtain ⟨f, hunitary⟩ := exists_isUnitary_congr_euclideanSpace π hπ
-  rw [← character_congr π hπ f]
+  have hπ' := f.continuous_congr hπ
+  rw [← f.character_congr hπ']
   set π' := ContinuousLinearEquiv.congr f π
-  have hπ' : Continuous π' := ContinuousLinearEquiv.continuous_congr f hπ
   let b := EuclideanSpace.basisFun (Fin (Module.finrank 𝕜 V)) 𝕜
   refine ContinuousLinearMap.ext fun v ↦ ?_
   by_cases hW : CompleteSpace W
@@ -211,8 +185,8 @@ theorem integratedOperator_star_character_eq_zero
 /-- **The conjugate character acts on its own representation by the inverse dimension.** For a
 finite-dimensional irreducible representation of dimension `d`, the integrated operator of
 `conj χ_π` on `V_π` is `d⁻¹ • id`. Neither unitarity of `π` nor an inner product on its carrier is
-assumed: `π` is conjugate to a unitary representation on a standard model, which has the same
-character.
+assumed, since none is in the first character orthogonality relation
+`ContRepresentation.character_orthonormal_self`.
 
 The scalar is `d⁻¹` rather than `1` exactly because the character has `L²` norm one: the projection
 kernel that acts as the identity is `d · conj χ_π`, which is
@@ -221,13 +195,8 @@ theorem integratedOperator_star_character_self
     (hirr : Representation.IsIrreducible π.toRepresentation) :
     integratedOperator π hπ (star (character π hπ))
       = (Module.finrank 𝕜 V : 𝕜)⁻¹ • ContinuousLinearMap.id 𝕜 V := by
-  obtain ⟨f, hf⟩ := exists_isUnitary_congr_euclideanSpace π hπ
-  have horth := character_orthonormal_self (ContinuousLinearEquiv.congr f π)
-    (ContinuousLinearEquiv.continuous_congr f hπ) hf
-    (ContinuousLinearEquiv.isIrreducible_congr f hirr)
-  rw [characterLp_def, character_congr π hπ f, ← characterLp_def] at horth
   rw [integratedOperator_eq_smul_id π hπ (star_character_conj π hπ) hirr,
-    integral_star_character_mul_character π hπ π hπ, horth, mul_one]
+    integral_star_character_mul_character π hπ π hπ, character_orthonormal_self π hπ hirr, mul_one]
 
 /-- **The block projection, normalized.** For a finite-dimensional irreducible `π`, the
 kernel `dim V_π · conj χ_π` acts as the identity on `V_π`; together with
