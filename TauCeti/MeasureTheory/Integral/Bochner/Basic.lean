@@ -631,13 +631,8 @@ theorem tendsto_integral_smul_of_tendstoUniformlyOn {X F ι : Type*} [Topologica
   · exact tendsto_bot
   have hint : ∀ {h : X → F}, ContinuousOn h (tsupport a) → Integrable (fun x ↦ a x • h x) μ := by
     intro h hh
-    have : (tsupport a).indicator (fun x ↦ a x • h x) = fun x ↦ a x • h x :=
-      Set.indicator_eq_self.2 <| Function.support_subset_iff'.2 fun x hx => by
-        simp [image_eq_zero_of_notMem_tsupport hx]
-    rw [← this, Set.indicator_smul]
-    refine Integrable.smul_of_top_right ?_ (ha.memLp_top_of_hasCompactSupport hac μ)
-    rw [integrable_indicator_iff (isClosed_tsupport a).measurableSet]
-    exact hh.integrableOn_compact' hac (isClosed_tsupport a).measurableSet
+    exact (hh.integrableOn_compact' hac (isClosed_tsupport a).measurableSet
+      ).locallyIntegrableOn.integrable_smul_left_of_hasCompactSupport ha hac subset_rfl
   obtain ⟨B, hB⟩ := ha.bounded_above_of_compact_support hac
   exact tendsto_integral_smul_of_tendsto_lintegral_enorm_sub
     (Eventually.of_forall hB) (Eventually.of_forall fun x hx ↦ image_eq_zero_of_notMem_tsupport hx)
