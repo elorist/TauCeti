@@ -20,6 +20,8 @@ functions, continuity of cumulative variation is equivalent to continuity of the
 The file also records that cumulative variation only depends on the function on `s`
 (`variationOnFromTo.eq_of_eqOn`), and the antitone counterpart
 `variationOnFromTo.comp_eq_of_antitoneOn` of Mathlib's `variationOnFromTo.comp_eq_of_monotoneOn`.
+A base point outside `Icc a b` may be replaced by the nearest endpoint
+(`variationOnFromTo.eqOn_Icc_of_le_left`, `variationOnFromTo.eqOn_Icc_of_right_le`).
 -/
 
 public section
@@ -50,6 +52,22 @@ protected theorem comp_eq_of_antitoneOn (f : α → E) {t : Set β} (φ : β →
       eVariationOn.comp_inter_Icc_eq_of_antitoneOn f φ hφ hx hy]
   · rw [variationOnFromTo.eq_of_ge _ _ h, variationOnFromTo.eq_of_ge _ _ (hφ hy hx h),
       eVariationOn.comp_inter_Icc_eq_of_antitoneOn f φ hφ hy hx]
+
+/-- A base point at or to the left of `Icc a b` may be replaced by `a`: on `Icc a b` the cumulative
+variation from `c` equals the cumulative variation from `a`. -/
+protected theorem eqOn_Icc_of_le_left {f : α → E} {a b c : α} (h : c ≤ a) :
+    EqOn (variationOnFromTo f (Icc a b) c) (variationOnFromTo f (Icc a b) a) (Icc a b) := by
+  intro x hx
+  rw [variationOnFromTo.eq_of_le _ _ (h.trans hx.1), variationOnFromTo.eq_of_le _ _ hx.1,
+    Icc_inter_Icc, Icc_inter_Icc, sup_eq_left.2 h, sup_idem]
+
+/-- A base point at or to the right of `Icc a b` may be replaced by `b`: on `Icc a b` the
+cumulative variation from `c` equals the cumulative variation from `b`. -/
+protected theorem eqOn_Icc_of_right_le {f : α → E} {a b c : α} (h : b ≤ c) :
+    EqOn (variationOnFromTo f (Icc a b) c) (variationOnFromTo f (Icc a b) b) (Icc a b) := by
+  intro x hx
+  rw [variationOnFromTo.eq_of_ge _ _ (hx.2.trans h), variationOnFromTo.eq_of_ge _ _ hx.2,
+    Icc_inter_Icc, Icc_inter_Icc, inf_eq_left.2 h, inf_idem]
 
 end variationOnFromTo
 
@@ -196,25 +214,13 @@ theorem strictMonoOn_variationOnFromTo_of_injOn_Ioo
     exact hx.elim
   have hab : a ≤ b := hz.1.trans hz.2
   -- A base point outside `Icc a b` gives the same values as the nearest endpoint.
-  obtain ⟨c, hc, hcc⟩ : ∃ c' ∈ Icc a b,
+  obtain ⟨c', hc, hcc⟩ : ∃ c' ∈ Icc a b,
       EqOn (variationOnFromTo f (Icc a b) c) (variationOnFromTo f (Icc a b) c') (Icc a b) := by
     rcases lt_or_ge c a with h | h
-    · refine ⟨a, left_mem_Icc.2 hab, fun x hx ↦ ?_⟩
-      rw [variationOnFromTo.eq_of_le _ _ (h.le.trans hx.1), variationOnFromTo.eq_of_le _ _ hx.1]
-      have hs : Icc a b ∩ Icc c x = Icc a b ∩ Icc a x := by
-        ext y
-        simp only [mem_inter_iff, mem_Icc]
-        constructor <;> rintro ⟨⟨h1, h2⟩, h3, h4⟩ <;> refine ⟨⟨h1, h2⟩, ?_, h4⟩ <;> order
-      rw [hs]
+    · exact ⟨a, left_mem_Icc.2 hab, variationOnFromTo.eqOn_Icc_of_le_left h.le⟩
     · rcases le_or_gt c b with h' | h'
       · exact ⟨c, ⟨h, h'⟩, fun _ _ ↦ rfl⟩
-      · refine ⟨b, right_mem_Icc.2 hab, fun x hx ↦ ?_⟩
-        rw [variationOnFromTo.eq_of_ge _ _ (hx.2.trans h'.le), variationOnFromTo.eq_of_ge _ _ hx.2]
-        have hs : Icc a b ∩ Icc x c = Icc a b ∩ Icc x b := by
-          ext y
-          simp only [mem_inter_iff, mem_Icc]
-          constructor <;> rintro ⟨⟨h1, h2⟩, h3, h4⟩ <;> refine ⟨⟨h1, h2⟩, h3, ?_⟩ <;> order
-        rw [hs]
+      · exact ⟨b, right_mem_Icc.2 hab, variationOnFromTo.eqOn_Icc_of_right_le h'.le⟩
   refine StrictMonoOn.congr ?_ hcc.symm
   have hm := variationOnFromTo.monotoneOn hf hc
   intro x hx y hy hxy
@@ -225,9 +231,9 @@ theorem strictMonoOn_variationOnFromTo_of_injOn_Ioo
   obtain ⟨v, huv, hvy⟩ := exists_between huy
   have hu : u ∈ Icc a b := ⟨hx.1.trans hxu.le, huy.le.trans hy.2⟩
   have hv : v ∈ Icc a b := ⟨hu.1.trans huv.le, hvy.le.trans hy.2⟩
-  have heu : variationOnFromTo f (Icc a b) c u = variationOnFromTo f (Icc a b) c x :=
+  have heu : variationOnFromTo f (Icc a b) c' u = variationOnFromTo f (Icc a b) c' x :=
     le_antisymm ((hm hu hy huy.le).trans_eq heq.symm) (hm hx hu hxu.le)
-  have hev : variationOnFromTo f (Icc a b) c v = variationOnFromTo f (Icc a b) c x :=
+  have hev : variationOnFromTo f (Icc a b) c' v = variationOnFromTo f (Icc a b) c' x :=
     le_antisymm ((hm hv hy hvy.le).trans_eq heq.symm)
       (hm hx hv (hxu.trans huv).le)
   have hd := hf.dist_le_abs_sub_variationOnFromTo hc hu hv
