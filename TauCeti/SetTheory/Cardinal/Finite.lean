@@ -31,6 +31,8 @@ have ranges of the same cardinality; this is a counting step of exact-sequence a
   type is `0`.
 * `Nat.card_range_eq_card_range_of_comp_eq`: `Nat.card (Set.range f) = Nat.card (Set.range f')`
   when `e' ∘ f = f' ∘ e` with `e` surjective and `e'` injective on the range of `f`.
+* `TauCeti.finite_of_natCast_card_ne_zero`: a type whose cardinality has a nonzero cast in an
+  additive monoid with one is finite, since `Nat.card` vanishes on infinite types.
 -/
 
 public section
@@ -89,3 +91,12 @@ theorem card_range_eq_card_range_of_comp_eq {α β γ δ : Type*} {f : α → β
   rw [← he.range_comp f', ← h, Set.range_comp, Nat.card_image_of_injOn he']
 
 end Nat
+
+namespace TauCeti
+
+/-- A type is finite if its cardinality has a nonzero cast. -/
+theorem finite_of_natCast_card_ne_zero {α R : Type*} [AddMonoidWithOne R]
+    (h : (Nat.card α : R) ≠ 0) : Finite α :=
+  Nat.finite_of_card_ne_zero fun hcard ↦ h (by simp [hcard])
+
+end TauCeti
