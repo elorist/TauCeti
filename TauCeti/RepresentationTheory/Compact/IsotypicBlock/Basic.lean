@@ -717,7 +717,7 @@ theorem peterWeylBlockAveraging_matrixCoeffLp_eq_zero
       = 0 := by
     rw [ContRepresentation.integratedOperator_smul,
       ContRepresentation.integratedOperator_star_character_eq_zero model.rep model.continuous_rep
-        model'.rep model'.continuous_rep model.isUnitary
+        model'.rep model'.continuous_rep
         (fun φ => by
           simp [ContRepresentation.eq_zero_of_isEmpty_equiv model'.isIrreducible
             model.isIrreducible hne' φ]),
