@@ -10,6 +10,7 @@ public import TauCeti.AlgebraicGeometry.GroupAction.Orbit.Basic
 public import TauCeti.AlgebraicGeometry.RationalPoint.Image
 public import TauCeti.AlgebraicGeometry.Scheme.KrullDimension
 public import TauCeti.Topology.Algebra.MulAction.Orbit
+import TauCeti.AlgebraicGeometry.Morphisms.FiniteType
 
 /-!
 # Orbits of algebraic group actions are locally closed
