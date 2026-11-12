@@ -194,7 +194,7 @@ theorem exp_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
   have hR₂pos : 0 < R₂ := by
     have : (0 : ENNReal) < (R₂ : ENNReal) := (bot_le : (0 : ENNReal) ≤ ‖z‖ₑ).trans_lt hzR₂
     exact_mod_cast this
-  have hr := le_radius_ofScalars_of_zeroFree f hne
+  have hr := FormalMultilinearSeries.le_radius_ofScalars_of_ofScalarsSum_ne_zero _ hne
   have hfr : 0 < (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius :=
     (by exact_mod_cast hR₂pos : (0 : ENNReal) < R₂).trans (hR₂r.trans_le hr)
   obtain ⟨L, hLd, hLexp⟩ := exists_differentiableOn_exp_comp_ofScalarsSum_of_zeroFree f hR₂pos
@@ -256,7 +256,7 @@ theorem hasSum_coeff_logOf_mul_pow_of_slitPlane (f : ℂ⟦X⟧)
   have hmem : ∀ {w : ℂ}, w ∈ U → ‖w‖ₑ < r := fun hw ↦ by
     simpa only [U, Metric.mem_eball, edist_zero_right] using hw
   have hr0 : 0 < r := zero_le.trans_lt hz
-  have hr := le_radius_ofScalars_of_zeroFree f hne
+  have hr := FormalMultilinearSeries.le_radius_ofScalars_of_ofScalarsSum_ne_zero _ hne
   have hFd : DifferentiableOn ℂ F U :=
     (((FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).hasFPowerSeriesOnBall
       (hr0.trans_le hr)).differentiableOn).mono (Metric.eball_subset_eball hr)

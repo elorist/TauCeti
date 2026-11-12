@@ -8,6 +8,7 @@ module
 public import Mathlib.Analysis.Analytic.Composition
 public import Mathlib.Analysis.Analytic.OfScalars
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
+public import Mathlib.Analysis.RCLike.Basic
 
 /-!
 # Scalar formal multilinear series
@@ -169,5 +170,26 @@ theorem _root_.HasFPowerSeriesOnBall.comp_pow_ofScalars {𝕂 A : Type*} [Nontri
       · exact absurd ⟨n / m, Nat.mul_div_cancel' h⟩ hn
       · exact zero_smul _ _
     · simp [Nat.mul_div_cancel_left _ hm, ← pow_mul]
+
+section RCLike
+
+variable {K : Type*} [RCLike K]
+
+/-- **Zero-freeness of the analytic sum forces the disk into the disk of convergence.** If the
+sum of a scalar series, which is `0` where the series does not converge, has no zero in a disk
+about the origin, then that disk lies in the disk of convergence. -/
+theorem le_radius_ofScalars_of_ofScalarsSum_ne_zero (a : ℕ → K) {r : ENNReal}
+    (hne : ∀ z : K, ‖z‖ₑ < r → ofScalarsSum (E := K) a z ≠ 0) :
+    r ≤ (ofScalars K a).radius := by
+  refine ENNReal.le_of_forall_nnreal_lt fun t ht ↦ ?_
+  have hz : ‖((t : ℝ) : K)‖ₑ < r := by simpa [enorm_eq_nnnorm] using ht
+  have hsum : Summable fun n : ℕ ↦ a n * ((t : ℝ) : K) ^ n := by
+    by_contra h
+    refine hne _ hz ?_
+    simpa only [ofScalarsSum_eq_tsum, smul_eq_mul] using tsum_eq_zero_of_not_summable h
+  refine le_radius_of_tendsto _ (l := 0) ?_
+  simpa [ofScalars_norm] using hsum.tendsto_atTop_zero.norm
+
+end RCLike
 
 end FormalMultilinearSeries
