@@ -223,8 +223,7 @@ theorem exp_tsum_tsum_coeff_localLogSeries_eq_LSeries_of_zeroFree (D : EulerProd
   have hprod := (D.summable_tsum_coeff_localLogSeries hσ hs).hasSum.cexp
   refine hprod.unique ((D.hasProd_eulerFactor
     (summable_idealTerm_of_re_le_re K (by simpa using hs.le) hσ)).congr_fun fun P ↦ ?_)
-  exact D.exp_tsum_coeff_localLogSeries_eq_eulerFactor_of_zeroFree P
-    (D.LSeriesSummable_localArithmeticFactor hσ P) (hne P) hs
+  exact D.exp_tsum_coeff_localLogSeries_eq_eulerFactor_of_zeroFree P (hne P) hs
 
 /-- A local prime-power logarithm whose tail at `σ` has norm sum at most `1 / 2` is bounded on
 `Re(s) > σ` by `3 / 2` times that tail. -/
@@ -250,7 +249,6 @@ private theorem norm_tsum_coeff_localLogSeries_le_of_tsum_norm_le (D : EulerProd
 logarithm is bounded by its absolutely convergent norm sum at `σ'`. -/
 private theorem norm_tsum_coeff_localLogSeries_le_tsum_norm (D : EulerProductData K)
     (P : HeightOneSpectrum (𝓞 K)) {σ σ' : ℝ} {s : ℂ}
-    (hσ : LSeriesSummable (D.localArithmeticFactor P) (σ : ℂ))
     (hne : ∀ z : ℂ,
       ‖z‖ < ‖(Ideal.absNorm P.asIdeal : ℂ) ^ (-(σ : ℂ))‖ →
         FormalMultilinearSeries.ofScalarsSum (E := ℂ)
@@ -260,9 +258,9 @@ private theorem norm_tsum_coeff_localLogSeries_le_tsum_norm (D : EulerProductDat
         ((Ideal.absNorm P.asIdeal : ℂ) ^ (-s)) ^ e‖ ≤
       ∑' e : ℕ, ‖PowerSeries.coeff e (D.localLogSeries P) *
         ((Ideal.absNorm P.asIdeal : ℂ) ^ (-(σ' : ℂ))) ^ e‖ := by
-  have hsum' := D.summable_norm_coeff_localLogSeries_of_zeroFree P hσ hne (s := σ')
+  have hsum' := D.summable_norm_coeff_localLogSeries_of_zeroFree P hne (s := σ')
     (by simpa using hσσ')
-  have hsum := D.summable_norm_coeff_localLogSeries_of_zeroFree P hσ hne (hσσ'.trans hs)
+  have hsum := D.summable_norm_coeff_localLogSeries_of_zeroFree P hne (hσσ'.trans hs)
   have hxy := (P.norm_absNorm_cpow_neg_lt (s := σ') (by simpa using hs)).le
   refine (norm_tsum_le_tsum_norm hsum).trans (hsum.tsum_le_tsum (fun e ↦ ?_) hsum')
   rw [norm_mul, norm_mul, norm_pow, norm_pow]
@@ -308,8 +306,7 @@ theorem differentiableOn_tsum_tsum_coeff_localLogSeries_of_zeroFree (D : EulerPr
   have hbound (P : HeightOneSpectrum (𝓞 K)) (s : ℂ) (hs : s ∈ V) : ‖ℓ P s‖ ≤ u P := by
     by_cases hP : P ∈ E
     · simp only [u, Set.indicator_of_mem hP]
-      exact (D.norm_tsum_coeff_localLogSeries_le_tsum_norm P
-        (D.LSeriesSummable_localArithmeticFactor hσ P) (hne P) hσσ' hs).trans
+      exact (D.norm_tsum_coeff_localLogSeries_le_tsum_norm P (hne P) hσσ' hs).trans
         (le_add_of_nonneg_right (mul_nonneg (by norm_num) (tsum_nonneg fun _ ↦ norm_nonneg _)))
     · simp only [u, Set.indicator_of_notMem hP, zero_add]
       exact D.norm_tsum_coeff_localLogSeries_le_of_tsum_norm_le P

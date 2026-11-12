@@ -14,7 +14,8 @@ public import Mathlib.Analysis.Complex.TaylorSeries
 
 This file connects the formal logarithmic derivative of a complex power series to its analytic
 sum. If a power series has constant coefficient one and its analytic sum has no zero in a disk
-of convergence, then its formal logarithmic derivative converges throughout that disk.
+about the origin, then its formal logarithmic derivative converges throughout that disk. Since the
+analytic sum is `0` wherever the series diverges, no separate convergence hypothesis is needed.
 
 The zero-free hypothesis is essential: the radius of the logarithmic derivative is limited by the
 nearest zero of the original series, even when the original series converges farther.
@@ -24,9 +25,9 @@ file gives an explicit bound for the absolute coefficient sum of `f'/f` there.
 ## Main results
 
 * `PowerSeries.hasSum_coeff_logDeriv_mul_pow_of_zeroFree`: evaluation of the formal
-  logarithmic derivative throughout a zero-free convergence disk.
+  logarithmic derivative throughout a zero-free disk.
 * `PowerSeries.summable_norm_coeff_logDeriv_mul_pow_of_zeroFree`: absolute convergence of the
-  formal logarithmic derivative throughout a zero-free convergence disk.
+  formal logarithmic derivative throughout a zero-free disk.
 * `PowerSeries.tsum_norm_coeff_logDeriv_mul_pow_succ_le`: an explicit bound for the absolute
   coefficient sum of the formal logarithmic derivative when `f` is close to `1`.
 -/
@@ -182,7 +183,7 @@ private theorem hasFPowerSeriesOnBall_logDeriv_of_zeroFree (f : ℂ⟦X⟧)
 zero-free disk.** Let `f` be a complex power series with constant coefficient one. If its analytic
 sum has no zero in a disk about the origin (the sum is `0` where the series does not converge, so
 this already puts the disk inside the disk of convergence), then the coefficient series of
-`f.logDeriv` sums to the analytic logarithmic derivative at every point of the smaller disk. -/
+`f.logDeriv` sums to the analytic logarithmic derivative at every point of that disk. -/
 theorem hasSum_coeff_logDeriv_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →

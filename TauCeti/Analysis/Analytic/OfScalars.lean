@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Analytic.Composition
 public import Mathlib.Analysis.Analytic.OfScalars
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
-public import Mathlib.Analysis.RCLike.Basic
 
 /-!
 # Scalar formal multilinear series
@@ -18,8 +17,10 @@ algebra need not be commutative: variables retain their original order inside ev
 block. It also evaluates the change-of-origin series of a scalar series on constant vectors, and
 uses this to express the iterated derivatives of a scalar power series over a complete nontrivially
 normed field, at any point of its ball of convergence, as the termwise differentiated series; at
-zero they recover the coefficients. Finally, it computes the scalar series of `z ↦ f (z ^ m)` on a
-ball of radius at most `1` from that of `f`, in any normed algebra with `‖1‖ = 1`.
+zero they recover the coefficients. It computes the scalar series of `z ↦ f (z ^ m)` on a ball of
+radius at most `1` from that of `f`, in any normed algebra with `‖1‖ = 1`. Finally, over a densely
+normed field, a scalar series whose sum has no zero in a disk about the origin converges on that
+disk, because the sum is `0` wherever the series diverges.
 -/
 
 public section
@@ -171,25 +172,21 @@ theorem _root_.HasFPowerSeriesOnBall.comp_pow_ofScalars {𝕂 A : Type*} [Nontri
       · exact zero_smul _ _
     · simp [Nat.mul_div_cancel_left _ hm, ← pow_mul]
 
-section RCLike
-
-variable {K : Type*} [RCLike K]
-
-/-- **Zero-freeness of the analytic sum forces the disk into the disk of convergence.** If the
-sum of a scalar series, which is `0` where the series does not converge, has no zero in a disk
-about the origin, then that disk lies in the disk of convergence. -/
-theorem le_radius_ofScalars_of_ofScalarsSum_ne_zero (a : ℕ → K) {r : ENNReal}
-    (hne : ∀ z : K, ‖z‖ₑ < r → ofScalarsSum (E := K) a z ≠ 0) :
-    r ≤ (ofScalars K a).radius := by
+/-- **Zero-freeness of the analytic sum forces the disk into the disk of convergence.** Over a
+densely normed field, if the sum of a scalar series, which is `0` where the series does not
+converge, has no zero in a disk about the origin, then that disk lies in the disk of convergence. -/
+theorem le_radius_ofScalars_of_ofScalarsSum_ne_zero {𝕜 : Type*} [DenselyNormedField 𝕜]
+    (a : ℕ → 𝕜) {r : ℝ≥0∞} (hne : ∀ z : 𝕜, ‖z‖ₑ < r → ofScalarsSum (E := 𝕜) a z ≠ 0) :
+    r ≤ (ofScalars 𝕜 a).radius := by
   refine ENNReal.le_of_forall_nnreal_lt fun t ht ↦ ?_
-  have hz : ‖((t : ℝ) : K)‖ₑ < r := by simpa [enorm_eq_nnnorm] using ht
-  have hsum : Summable fun n : ℕ ↦ a n * ((t : ℝ) : K) ^ n := by
+  obtain ⟨u, htu, hur⟩ := ENNReal.lt_iff_exists_nnreal_btwn.mp ht
+  obtain ⟨z, htz, hzu⟩ := NormedField.exists_lt_nnnorm_lt 𝕜 (ENNReal.coe_lt_coe.mp htu)
+  have hz : ‖z‖ₑ < r := (enorm_eq_nnnorm z ▸ ENNReal.coe_lt_coe.mpr hzu).trans hur
+  have hsum : Summable fun n : ℕ ↦ a n * z ^ n := by
     by_contra h
-    refine hne _ hz ?_
+    refine hne z hz ?_
     simpa only [ofScalarsSum_eq_tsum, smul_eq_mul] using tsum_eq_zero_of_not_summable h
-  refine le_radius_of_tendsto _ (l := 0) ?_
+  refine (ENNReal.coe_le_coe.mpr htz.le).trans (le_radius_of_tendsto _ (l := 0) ?_)
   simpa [ofScalars_norm] using hsum.tendsto_atTop_zero.norm
-
-end RCLike
 
 end FormalMultilinearSeries

@@ -19,12 +19,12 @@ exponentiating the evaluated formal logarithm recovers the original analytic sum
 ## Main results
 
 * `PowerSeries.summable_norm_coeff_logOf_mul_pow_of_zeroFree`: absolute convergence of the
-  formal logarithm throughout a zero-free convergence disk.
+  formal logarithm throughout a zero-free disk.
 * `PowerSeries.exp_tsum_coeff_logOf_mul_pow_of_zeroFree`: exponentiation recovers the original
   power series.
 * `PowerSeries.le_radius_ofScalars_logOf_of_zeroFree` and
   `PowerSeries.differentiableOn_tsum_coeff_logOf_mul_pow_of_zeroFree`: the formal logarithm
-  converges, and is holomorphic, throughout a zero-free disk of convergence.
+  converges, and is holomorphic, throughout a zero-free disk.
 * `PowerSeries.hasSum_coeff_logOf_mul_pow_of_slitPlane`: on a disk that the original series maps
   into the slit plane, the evaluated formal logarithm is the principal logarithm.
 -/
@@ -36,8 +36,10 @@ namespace PowerSeries
 open Filter
 open scoped Topology
 
-/-- The formal logarithm converges absolutely throughout every zero-free disk on which the
-original power series converges. -/
+/-- The formal logarithm of a complex power series with constant coefficient one converges
+absolutely throughout every disk about the origin on which the analytic sum of the series has no
+zero. The analytic sum is `0` wherever the series diverges, so such a disk lies in the disk of
+convergence. -/
 theorem summable_norm_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
@@ -176,10 +178,11 @@ private theorem hasSum_coeff_logOf_mul_pow_of_deriv_eq (f : ℂ⟦X⟧) (hf0 : c
   simpa [mul_comm] using hlogSeries.hasSum hzBall
 
 /-- **The evaluated formal logarithm exponentiates to the original power series.** If a complex
-power series has constant coefficient one and is zero-free in a disk of convergence, then its
-formal logarithm converges throughout that disk and its exponential is the analytic sum of the
-original series. Apply this theorem with an explicit radius `r`; the left-hand side does not
-determine it for simplification. -/
+power series has constant coefficient one and its analytic sum has no zero in a disk about the
+origin, then at every point of that disk the exponential of the evaluated formal logarithm is the
+analytic sum of the original series. Convergence of the formal logarithm there is
+`PowerSeries.summable_norm_coeff_logOf_mul_pow_of_zeroFree`. Apply this theorem with an explicit
+radius `r`; the left-hand side does not determine it for simplification. -/
 theorem exp_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
@@ -209,9 +212,8 @@ theorem exp_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     exact_mod_cast hzR₂)
 
 
-/-- **The formal logarithm converges on every zero-free disk of convergence.** Its radius of
-convergence is at least the radius of any disk inside the disk of convergence of `f` on which the
-analytic sum of `f` has no zero. -/
+/-- **The formal logarithm converges on every zero-free disk.** Its radius of convergence is at
+least the radius of any disk about the origin on which the analytic sum of `f` has no zero. -/
 theorem le_radius_ofScalars_logOf_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
@@ -223,7 +225,8 @@ theorem le_radius_ofScalars_logOf_of_zeroFree (f : ℂ⟦X⟧)
     (z := ((t : ℝ) : ℂ)) (by simpa [enorm_eq_nnnorm] using ht)
   simpa [FormalMultilinearSeries.ofScalars_norm] using h
 
-/-- The evaluated formal logarithm is holomorphic on every zero-free disk of convergence. -/
+/-- The evaluated formal logarithm is holomorphic on every disk about the origin on which the
+analytic sum of `f` has no zero. -/
 theorem differentiableOn_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
@@ -239,9 +242,9 @@ theorem differentiableOn_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
   simp only [FormalMultilinearSeries.sum, FormalMultilinearSeries.ofScalars_apply_eq, smul_eq_mul]
 
 /-- **The evaluated formal logarithm is the principal logarithm on a disk mapped into the slit
-plane.** If the analytic sum of `f` sends a disk inside its disk of convergence into
-`Complex.slitPlane`, then on that disk the formal logarithm of `f` sums to the principal value
-`Complex.log` of the analytic sum, rather than to some other logarithm of it. -/
+plane.** If the analytic sum of `f` sends a disk about the origin into `Complex.slitPlane`, then
+on that disk the formal logarithm of `f` sums to the principal value `Complex.log` of the analytic
+sum, rather than to some other logarithm of it. -/
 theorem hasSum_coeff_logOf_mul_pow_of_slitPlane (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
     (hslit : ∀ z : ℂ, ‖z‖ₑ < r →
