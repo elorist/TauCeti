@@ -133,6 +133,23 @@ theorem coeff_logDeriv_eq_iteratedDeriv (f : ℂ⟦X⟧)
       rw [Nat.sub_self, hfcoeff, mul_one] at ha
       exact add_left_cancel (hr.trans ha.symm)
 
+/-- **Zero-freeness of the analytic sum forces the disk into the disk of convergence.** If the
+sum of a complex power series, which is `0` where the series does not converge, has no zero in a
+disk about the origin, then that disk lies in the disk of convergence. -/
+theorem le_radius_ofScalars_of_zeroFree (f : ℂ⟦X⟧) {r : ENNReal}
+    (hne : ∀ z : ℂ, ‖z‖ₑ < r →
+      FormalMultilinearSeries.ofScalarsSum (E := ℂ) (fun n ↦ coeff n f) z ≠ 0) :
+    r ≤ (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius := by
+  refine ENNReal.le_of_forall_nnreal_lt fun t ht ↦ ?_
+  have hz : ‖((t : ℝ) : ℂ)‖ₑ < r := by simpa [enorm_eq_nnnorm] using ht
+  have hsum : Summable fun n : ℕ ↦ coeff n f * ((t : ℝ) : ℂ) ^ n := by
+    by_contra h
+    refine hne _ hz ?_
+    simpa only [FormalMultilinearSeries.ofScalarsSum_eq_tsum, smul_eq_mul] using
+      tsum_eq_zero_of_not_summable h
+  refine FormalMultilinearSeries.le_radius_of_tendsto _ (l := 0) ?_
+  simpa [FormalMultilinearSeries.ofScalars_norm] using hsum.tendsto_atTop_zero.norm
+
 private theorem hasFPowerSeriesOnBall_logDeriv_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal} {R : NNReal}
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
@@ -142,17 +159,7 @@ private theorem hasFPowerSeriesOnBall_logDeriv_of_zeroFree (f : ℂ⟦X⟧)
       (_root_.logDeriv
         (FormalMultilinearSeries.ofScalarsSum (E := ℂ) fun n ↦ coeff n f))
       (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n (logDeriv f)) 0 R := by
-  -- Zero-freeness of the junk-valued sum forces the disk to lie in the disk of convergence.
-  have hr : r ≤ (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius := by
-    refine ENNReal.le_of_forall_nnreal_lt fun t ht ↦ ?_
-    have hz : ‖((t : ℝ) : ℂ)‖ₑ < r := by simpa [enorm_eq_nnnorm] using ht
-    have hsum : Summable fun n : ℕ ↦ coeff n f * ((t : ℝ) : ℂ) ^ n := by
-      by_contra h
-      refine hne _ hz ?_
-      simpa only [FormalMultilinearSeries.ofScalarsSum_eq_tsum, smul_eq_mul] using
-        tsum_eq_zero_of_not_summable h
-    refine FormalMultilinearSeries.le_radius_of_tendsto _ (l := 0) ?_
-    simpa [FormalMultilinearSeries.ofScalars_norm] using hsum.tendsto_atTop_zero.norm
+  have hr := le_radius_ofScalars_of_zeroFree f hne
   let F := FormalMultilinearSeries.ofScalarsSum (E := ℂ) fun n ↦ coeff n f
   let G := _root_.logDeriv F
   have hR0e : (0 : ENNReal) < R := by exact_mod_cast hR0

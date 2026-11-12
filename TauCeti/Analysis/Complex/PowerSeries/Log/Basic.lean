@@ -182,7 +182,6 @@ original series. Apply this theorem with an explicit radius `r`; the left-hand s
 determine it for simplification. -/
 theorem exp_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
-    (hr : r ≤ (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius)
     (hne : ∀ z : ℂ, ‖z‖ₑ < r →
       FormalMultilinearSeries.ofScalarsSum (E := ℂ) (fun n ↦ coeff n f) z ≠ 0)
     {z : ℂ} (hz : ‖z‖ₑ < r) :
@@ -195,6 +194,7 @@ theorem exp_tsum_coeff_logOf_mul_pow_of_zeroFree (f : ℂ⟦X⟧)
   have hR₂pos : 0 < R₂ := by
     have : (0 : ENNReal) < (R₂ : ENNReal) := (bot_le : (0 : ENNReal) ≤ ‖z‖ₑ).trans_lt hzR₂
     exact_mod_cast this
+  have hr := le_radius_ofScalars_of_zeroFree f hne
   have hfr : 0 < (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius :=
     (by exact_mod_cast hR₂pos : (0 : ENNReal) < R₂).trans (hR₂r.trans_le hr)
   obtain ⟨L, hLd, hLexp⟩ := exists_differentiableOn_exp_comp_ofScalarsSum_of_zeroFree f hR₂pos
@@ -244,7 +244,6 @@ plane.** If the analytic sum of `f` sends a disk inside its disk of convergence 
 `Complex.log` of the analytic sum, rather than to some other logarithm of it. -/
 theorem hasSum_coeff_logOf_mul_pow_of_slitPlane (f : ℂ⟦X⟧)
     (hf0 : constantCoeff f = 1) {r : ENNReal}
-    (hr : r ≤ (FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).radius)
     (hslit : ∀ z : ℂ, ‖z‖ₑ < r →
       FormalMultilinearSeries.ofScalarsSum (E := ℂ) (fun n ↦ coeff n f) z ∈ Complex.slitPlane)
     {z : ℂ} (hz : ‖z‖ₑ < r) :
@@ -257,6 +256,7 @@ theorem hasSum_coeff_logOf_mul_pow_of_slitPlane (f : ℂ⟦X⟧)
   have hmem : ∀ {w : ℂ}, w ∈ U → ‖w‖ₑ < r := fun hw ↦ by
     simpa only [U, Metric.mem_eball, edist_zero_right] using hw
   have hr0 : 0 < r := zero_le.trans_lt hz
+  have hr := le_radius_ofScalars_of_zeroFree f hne
   have hFd : DifferentiableOn ℂ F U :=
     (((FormalMultilinearSeries.ofScalars ℂ fun n ↦ coeff n f).hasFPowerSeriesOnBall
       (hr0.trans_le hr)).differentiableOn).mono (Metric.eball_subset_eball hr)
@@ -267,7 +267,7 @@ theorem hasSum_coeff_logOf_mul_pow_of_slitPlane (f : ℂ⟦X⟧)
       (hslit w (hmem hw)) |>.differentiableWithinAt
   -- `Λ` and `log ∘ F` are two holomorphic logarithms of `F` on the disk, both vanishing at `0`.
   have hΛexp : Set.EqOn (Complex.exp ∘ Λ) F U := fun w hw ↦
-    exp_tsum_coeff_logOf_mul_pow_of_zeroFree f hf0 hr hne (hmem hw)
+    exp_tsum_coeff_logOf_mul_pow_of_zeroFree f hf0 hne (hmem hw)
   have hderiv : Set.EqOn (deriv Λ) (deriv fun w ↦ Complex.log (F w)) U := fun w hw ↦ by
     rw [TauCeti.deriv_eq_logDeriv_of_eqOn_exp_comp Metric.isOpen_eball hΛd hΛexp hw,
       logDeriv_apply, ((((hFd w hw).differentiableAt

@@ -77,7 +77,7 @@ theorem exp_tsum_coeff_localLogSeries_eq_eulerFactor_of_zeroFree
     (hs : σ < s.re) :
     Complex.exp (∑' e : ℕ, PowerSeries.coeff e (D.localLogSeries P) *
       ((Ideal.absNorm P.asIdeal : ℂ) ^ (-s)) ^ e) = D.eulerFactor P s := by
-  obtain ⟨hr, hz⟩ := D.localPowerSeries_radius_data P hσ hs
+  obtain ⟨-, hz⟩ := D.localPowerSeries_radius_data P hσ hs
   rw [D.localLogSeries_def]
   calc
     Complex.exp (∑' e : ℕ, PowerSeries.coeff e (PowerSeries.logOf
@@ -86,7 +86,8 @@ theorem exp_tsum_coeff_localLogSeries_eq_eulerFactor_of_zeroFree
           (fun n ↦ PowerSeries.coeff n (D.localPowerSeries P))
             ((Ideal.absNorm P.asIdeal : ℂ) ^ (-s)) := by
       apply PowerSeries.exp_tsum_coeff_logOf_mul_pow_of_zeroFree
-        (D.localPowerSeries P) (D.constantCoeff_localPowerSeries P) hr
+        (D.localPowerSeries P) (D.constantCoeff_localPowerSeries P)
+        (r := ((‖(Ideal.absNorm P.asIdeal : ℂ) ^ (-(σ : ℂ))‖₊ : NNReal) : ENNReal))
       · intro z hz'
         apply hne z
         rw [enorm_eq_nnnorm, ENNReal.coe_lt_coe] at hz'

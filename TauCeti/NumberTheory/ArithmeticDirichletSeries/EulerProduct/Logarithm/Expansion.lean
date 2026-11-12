@@ -102,9 +102,6 @@ theorem tsum_coeff_localLogSeries_eq_log_eulerFactor (D : EulerProductData K)
       ‖idealTerm K D.toIdealArithmeticFunction σ (P.primeIdealPow e)‖ := by
     rw [idealTerm_primeIdealPow_eq_mul_cpow_neg, norm_mul, norm_pow]
     simp only [a, q, D.coeff_localPowerSeries]
-  have hr : (‖q‖₊ : ENNReal) ≤ (FormalMultilinearSeries.ofScalars ℂ a).radius :=
-    FormalMultilinearSeries.le_radius_of_summable _ <| by
-      simpa [FormalMultilinearSeries.ofScalars_norm, hterm] using hσ.norm
   have ha0 : a 0 = 1 := by simp [a]
   -- On the disk of radius `‖q‖`, the local power series stays within distance `1` of `1`.
   have hslit (z : ℂ) (hz : ‖z‖ₑ < ‖q‖₊) :
@@ -133,7 +130,7 @@ theorem tsum_coeff_localLogSeries_eq_log_eulerFactor (D : EulerProductData K)
     rw [enorm_eq_nnnorm, ENNReal.coe_lt_coe]
     exact P.norm_absNorm_cpow_neg_lt (by simpa using hs)
   have h := PowerSeries.hasSum_coeff_logOf_mul_pow_of_slitPlane (D.localPowerSeries P)
-    (D.constantCoeff_localPowerSeries P) hr hslit hx
+    (D.constantCoeff_localPowerSeries P) hslit hx
   constructor
   · simpa only [D.localLogSeries_def] using h.summable
   · rw [D.localLogSeries_def, h.tsum_eq]
