@@ -56,11 +56,11 @@ the only datum visible in the answer: the range is Mathlib's sum of the simple `
 
 The carrier of `sigma` is only asked to be a finite-dimensional normed space; no inner product on
 it is required, since everything visible in the statements reads `sigma` through its dimension, its
-character and its isomorphism type. The results that see the whole of `rho` — the identity on a
-matching block and on the whole isotypic component, the range identification, the fixed-point
-characterization and idempotence — need no more than that, and neither does the vanishing on a
-non-matching block. Complete reducibility of `rho`, which the range identification uses, comes from
-continuity alone, not from a unitary structure.
+character and its isomorphism type. The operator `isotypicProjector` is defined for a
+finite-dimensional normed carrier of `rho`, but the blockwise, range, fixed-point and idempotence
+theorems assume an inner product space `V` over `k` (and `[IsAlgClosed k]`, except for the vanishing
+on a non-matching block), without requiring `rho` to be unitary. Complete reducibility of `rho`,
+which the range identification uses, comes from continuity alone, not from a unitary structure.
 
 ## References
 
@@ -92,8 +92,8 @@ variable {W W' : Type*}
 
 /-- The normalized conjugate-character kernel `dim(sigma) · conj(character sigma)` of a
 finite-dimensional continuous representation `sigma`. When `sigma` is irreducible, integrating this
-kernel on a finite-dimensional unitary representation cuts out its isotypic component of type
-`sigma`. -/
+kernel on a finite-dimensional continuous representation on an inner product space over an
+algebraically closed field cuts out its isotypic component of type `sigma`. -/
 noncomputable def isotypicKernel (sigma : ContRepresentation k G W) (hsigma : Continuous sigma) :
     C(G, k) :=
   (Module.finrank k W : k) • star (character sigma hsigma)
@@ -148,8 +148,10 @@ variable (rho : ContRepresentation k G V) (hrho : Continuous rho)
 
 /-- **The normalized character operator.** This is the action on `rho` of
 `dim(sigma) · conj(character sigma)`, packaged as a continuous self-intertwiner. When `sigma` is
-irreducible and the finite-dimensional representation `rho` is unitary, this operator is the
-isotypic projector onto the component of type `sigma`. -/
+irreducible and `rho` is a finite-dimensional continuous representation on an inner product space
+over an algebraically closed field `k`, this operator is the isotypic projector onto the component
+of type `sigma`, as `range_isotypicProjector` and `isotypicProjector_idempotent` show, without any
+unitarity of `rho`. -/
 noncomputable def isotypicProjector (sigma : ContRepresentation k G W)
     (hsigma : Continuous sigma) : ContIntertwiningMap rho rho where
   __ := integratedOperator rho hrho (isotypicKernel sigma hsigma)
